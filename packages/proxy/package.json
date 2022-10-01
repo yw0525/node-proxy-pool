@@ -1,0 +1,12 @@
+{
+  "name": "proxy",
+  "version": "0.0.0",
+  "description": "http proxy",
+  "main": "dist/index.js",
+  "author": "heora",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/anyproxy": "^4.1.2",
+    "anyproxy": "^4.1.3"
+  }
+}
