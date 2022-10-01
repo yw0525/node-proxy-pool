@@ -41,30 +41,38 @@ const Task = (() => {
     createDir(stores_perfix)
   }
 
+  const print = (prefix: string) => (str: string | number) => console.log(`${prefix}${str}`)
+
   const stores_crawler = async (page: Page) => {
     const brands = getBrandsData()
 
     const recordFile = path.resolve(pre_params_prefix, `${name}_record.json`)
-    const record = getRecord(recordFile)
+    const record = new Set(getRecord(recordFile))
+
+    let total = brands.length - record.size
+
+    const basePrint = print(`crawler: `)
+
+    basePrint(`all ${total}`)
 
     for (const brand of brands) {
-      const brandFile = path.resolve(stores_perfix, `${brand}.json`)
+      if (record.has(brand)) continue
 
-      if (fs.existsSync(brandFile)) continue
+      basePrint('-------------------------------')
 
-      console.log('-------------------------------')
-
-      console.log(`crawler: ${brand}`)
+      basePrint(`${brand} ${total--}`)
 
       try {
+        const brandFile = path.resolve(stores_perfix, `${brand}.json`)
+
         const { total, data } = await page.evaluate(require(`./service/${name}`), { brand })
 
-        console.log(`crawler: ${brand} ${total} ${data.length}`)
+        basePrint(`${brand} ${total} ${data.length}`)
 
-        record.push(brand)
+        record.add(brand)
 
-        createFile(recordFile, [...new Set(record)])
         createFile(brandFile, data)
+        createFile(recordFile, [...record], true)
       } catch (error) {
         console.log(error)
       }

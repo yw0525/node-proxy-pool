@@ -47,8 +47,8 @@ const createDir = (dir: string) => {
   return dir
 }
 
-const createFile = (file: string, data: any) => {
-  if (!fs.existsSync(file)) {
+const createFile = (file: string, data: any, reset = false) => {
+  if (!fs.existsSync(file) || reset) {
     fs.writeFileSync(file, JSON.stringify(data), 'utf-8')
   }
   return file
