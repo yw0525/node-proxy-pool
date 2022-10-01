@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import minimist from 'minimist'
-import puppeteer from 'puppeteer'
+import puppeteer, { Page } from 'puppeteer'
 
 import { readCsvFile } from '../shared/csv'
 import { CRAWLER_TYPE, CRAWLER_URL } from './config/config'
@@ -41,28 +41,17 @@ const Task = (() => {
     createDir(stores_perfix)
   }
 
-  const init = async () => {
-    beforeCreate()
-
-    const browser = await puppeteer.launch({
-      headless: false,
-      devtools: true
-    })
-
-    const page = await browser.newPage()
-
+  const stores_crawler = async (page: Page) => {
     const brands = getBrandsData()
-    const url = CRAWLER_URL[name as CRAWLER_TYPE]
-
-    await page.goto(url)
 
     const recordFile = path.resolve(pre_params_prefix, `${name}_record.json`)
     const record = getRecord(recordFile)
 
-    for (const brand of brands.slice(0, 1)) {
+    for (const brand of brands) {
       const brandFile = path.resolve(stores_perfix, `${brand}.json`)
 
       if (fs.existsSync(brandFile)) continue
+
       console.log('-------------------------------')
 
       console.log(`crawler: ${brand}`)
@@ -80,6 +69,23 @@ const Task = (() => {
         console.log(error)
       }
     }
+  }
+
+  const init = async () => {
+    beforeCreate()
+
+    const browser = await puppeteer.launch({
+      headless: false,
+      devtools: true
+    })
+
+    const page = await browser.newPage()
+
+    const url = CRAWLER_URL[name as CRAWLER_TYPE]
+
+    await page.goto(url)
+
+    await stores_crawler(page)
 
     await browser.close()
   }
