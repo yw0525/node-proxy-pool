@@ -1,2 +1,6 @@
+# base
 node_modules/
 dist/
+
+# data
+*_stores/

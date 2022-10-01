@@ -6,8 +6,10 @@
     "moduleResolution": "node",
     "allowJs": false,
     "strict": true,
+    "lib": ["dom"],
     "esModuleInterop": true,
-    "removeComments": false
+    "removeComments": false,
+    "suppressImplicitAnyIndexErrors": true
   },
   "include": ["packages/**/*"],
   "exclude": ["node_modules"]
