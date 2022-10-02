@@ -1,14 +1,4 @@
-type Params = {
-  [key in string]: any
-}
-
-type Answer = {
-  max_page?: number
-  total?: number
-  data?: any[]
-}
-
-module.exports = async (params: Params) => {
+module.exports = async (params: ProcessParams) => {
   const getRandom = (start: number, end: number) =>
     Math.floor(Math.random() * (end - start + 1) + start)
 
@@ -17,7 +7,7 @@ module.exports = async (params: Params) => {
       setTimeout(() => resolve(), ms)
     })
 
-  const jsonpRequest = async (url: string, params: any): Promise<any> => {
+  const jsonpRequest = async (url: string, params: Params): Promise<any> => {
     const { callback } = params
 
     const scriptUrl = `${url}?${new URLSearchParams(params).toString()}`
@@ -39,24 +29,24 @@ module.exports = async (params: Params) => {
   const { brand } = params
 
   const getShops = async (ans: Answer, page: number) => {
-    const { max_page } = ans
+    const { page_count } = ans
 
-    if (max_page && max_page < page) return
+    if (page_count && page_count < page) return
 
-    if (max_page) {
+    if (page_count) {
       const delay = getRandom(3, 8) * 100
 
       console.log(`delay ${delay}ms`)
 
       await delaySync(delay)
 
-      console.log(`${brand}-${max_page}-${page}`)
+      console.log(`${brand}-${page_count}-${page}`)
     } else {
       console.log(`${brand}-start-${page}`)
     }
 
     const searchUrl = `https://wqsou.jd.com/shopsearch/mshopsearch`
-    const vendarData: any = await jsonpRequest(searchUrl, {
+    const vendarData: VendarData = await jsonpRequest(searchUrl, {
       key: brand,
       callback: 'jdSearchShopResultCbA',
       sort_type: 'sort_mobile_shop_desc',
@@ -72,13 +62,13 @@ module.exports = async (params: Params) => {
         shop_count
       } = summary
 
-      ans.max_page = page_count
+      ans.page_count = page_count
       ans.total = shop_count
       ans.data = []
     }
 
     const shopsUrl = `https://wq.jd.com/mshop/BatchGetShopInfoByVenderId`
-    const codeStr = vendarData.shops.map((item: any) => item.vender_id)
+    const codeStr = vendarData.shops.map((item: VendarItem) => item.vender_id)
 
     const { data } = await jsonpRequest(shopsUrl, {
       callback: 'shopInfoCbA',
@@ -87,7 +77,7 @@ module.exports = async (params: Params) => {
     })
 
     if (ans.data) {
-      ans.data.push(...(data as any[]))
+      ans.data.push(...data)
     }
 
     await getShops(ans, page + 1)
@@ -96,4 +86,61 @@ module.exports = async (params: Params) => {
   }
 
   return await getShops({}, 1)
+}
+
+type Params = {
+  [key in string]: any
+}
+
+type ProcessParams = {
+  brand: string
+}
+
+type Answer = {
+  page_count?: number
+  total?: number
+  data?: ShopItem[]
+}
+
+type VendarItem = {
+  vender_id: string
+}
+
+type VendarData = {
+  summary: {
+    page: {
+      page_count: number
+    }
+    shop_count: number
+  }
+  shops: VendarItem[]
+}
+
+type SecoundCatge = {
+  cateId: string
+  cateName: string
+}
+
+type ShopItem = {
+  banner: string
+  latestBanner: string
+  shopEnterHotCateId1: string
+  shopEnterHotCateId2: string
+  shopEnterHotCateId3: string
+  shopEnterHotCateName1: string
+  shopEnterHotCateName2: string
+  shopEnterHotCateName3: string
+  shopId: string
+  shopUrl: string
+  shopInfo: {
+    venderId: string
+    brief: string
+    isJxzy: string
+    isZy: string
+    shopName: string
+    goodsNum: string
+    shopFansNum: string
+  }
+  shopSecondCate: SecoundCatge[]
+  userEvaluateScore: string
 }

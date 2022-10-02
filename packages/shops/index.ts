@@ -9,6 +9,11 @@ import { createDir, createFile } from '../shared/tools'
 
 const { name } = minimist(process.argv.slice(2))
 
+type BrandItem = {
+  brand_name: string
+}
+type Brands = BrandItem[]
+
 const Task = (() => {
   const prefix = path.resolve(process.cwd(), 'packages/shops')
 
@@ -17,20 +22,20 @@ const Task = (() => {
   const pre_params_prefix = path.resolve(prefix, 'pre-params')
   const stores_perfix = path.resolve(pre_params_prefix, `${name}_stores`)
 
-  const getBrandsData = () => {
+  const getBrandsData = (): string[] => {
     const brandsStr = fs.readFileSync(path.resolve(pre_params_prefix, 'brands.csv'), 'utf8')
-    const brands = readCsvFile(brandsStr)
+    const brands: Brands = readCsvFile(brandsStr)
 
     if (Array.isArray(brands)) return brands.map(item => item.brand_name)
 
     return []
   }
 
-  const getRecord = (file: string) => {
-    let record: number[] = []
+  const getRecord = (file: string): string[] => {
+    let record: string[] = []
 
     if (fs.existsSync(file)) {
-      record = JSON.parse(fs.readFileSync(file, 'utf8')) as number[]
+      record = JSON.parse(fs.readFileSync(file, 'utf8'))
     }
 
     return record
