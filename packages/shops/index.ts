@@ -7,20 +7,22 @@ import { readCsvFile } from '../shared/csv'
 import { CRAWLER_TYPE, CRAWLER_URL } from './config/config'
 import { createDir, createFile } from '../shared/tools'
 
-const { name } = minimist(process.argv.slice(2))
-
 type BrandItem = {
   brand_name: string
 }
 type Brands = BrandItem[]
 
 const Task = (() => {
+  const { name } = minimist(process.argv.slice(2))
+
   const prefix = path.resolve(process.cwd(), 'packages/shops')
 
   const data_prefix = path.resolve(prefix, 'data')
 
   const pre_params_prefix = path.resolve(prefix, 'pre-params')
   const stores_perfix = path.resolve(pre_params_prefix, `${name}_stores`)
+
+  const { getShops } = require(`./service/${name}`)
 
   const getBrandsData = (): string[] => {
     const brandsStr = fs.readFileSync(path.resolve(pre_params_prefix, 'brands.csv'), 'utf8')
@@ -48,7 +50,7 @@ const Task = (() => {
 
   const print = (prefix: string) => (str: string | number) => console.log(`${prefix}${str}`)
 
-  const stores_crawler = async (page: Page) => {
+  const shops_crawler = async (page: Page) => {
     const brands = getBrandsData()
 
     const recordFile = path.resolve(pre_params_prefix, `${name}_record.json`)
@@ -70,7 +72,7 @@ const Task = (() => {
       try {
         const brandFile = path.resolve(stores_perfix, `${brand}.json`)
 
-        const { total, data } = await page.evaluate(require(`./service/${name}`), { brand })
+        const { total, data } = await page.evaluate(getShops, { brand })
 
         basePrint(`${brand} ${total} ${data.length}`)
 
@@ -98,7 +100,7 @@ const Task = (() => {
 
     await page.goto(url)
 
-    await stores_crawler(page)
+    await shops_crawler(page)
 
     await browser.close()
   }
