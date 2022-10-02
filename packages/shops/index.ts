@@ -4,18 +4,20 @@ import minimist from 'minimist'
 import puppeteer, { Page } from 'puppeteer'
 
 import { readCsvFile } from '../shared/csv'
-import { CRAWLER_TYPE, CRAWLER_URL } from './config/config'
-import { createDir, createFile } from '../shared/tools'
+import { CRAWLER_TYPE, CRAWLER_URL, START_TIME } from './config/config'
+import { createDir, createFile, getTimeStr } from '../shared/tools'
 
 const Task = (() => {
   const { name } = minimist(process.argv.slice(2))
 
   const prefix = path.resolve(process.cwd(), 'packages/shops')
 
-  const data_prefix = path.resolve(prefix, 'data')
-
   const pre_params_prefix = path.resolve(prefix, 'pre-params')
-  const stores_perfix = path.resolve(pre_params_prefix, `${name}_stores`)
+  const pre_params_shops_perfix = path.resolve(pre_params_prefix, `${name}_shops`)
+  const pre_params_shops_record = path.resolve(pre_params_prefix, `${name}_record.json`)
+
+  const data_prefix = path.resolve(prefix, 'data')
+  const data_goods_prefix = path.resolve(data_prefix, `${name}_${getTimeStr(START_TIME)}`)
 
   const { grabShops, grabGoods } = require(`./service/${name}`)
 
@@ -40,16 +42,19 @@ const Task = (() => {
 
   const beforeCreate = () => {
     createDir(data_prefix)
-    createDir(stores_perfix)
+    createDir(data_goods_prefix)
+    createDir(pre_params_shops_perfix)
   }
 
   const print = (prefix: string) => (str: string | number) => console.log(`${prefix}${str}`)
 
+  // grab shops
   const shops_crawler = async (page: Page) => {
     const brands = getBrandsData()
 
-    const recordFile = path.resolve(pre_params_prefix, `${name}_record.json`)
-    const record = new Set(getRecord(recordFile))
+    createFile(pre_params_shops_record, [])
+
+    const record = new Set(getRecord(pre_params_shops_record))
 
     let total = brands.length - record.size
 
@@ -66,7 +71,7 @@ const Task = (() => {
       basePrint(`${brand} ${total--}`)
 
       try {
-        const shopFile = path.resolve(stores_perfix, `${brand}.json`)
+        const shopFile = path.resolve(pre_params_shops_perfix, `${brand}.json`)
 
         const { total, data } = await page.evaluate(grabShops, { brand })
 
@@ -75,7 +80,7 @@ const Task = (() => {
         record.add(brand)
 
         createFile(shopFile, data)
-        createFile(recordFile, [...record], true)
+        createFile(pre_params_shops_record, [...record], true)
       } catch (error) {
         console.log(error)
       }
@@ -84,6 +89,7 @@ const Task = (() => {
     basePrint('finished')
   }
 
+  // grab goods
   const goods_crawler = async (page: Page) => {
     const brands = getBrandsData()
 
@@ -98,10 +104,10 @@ const Task = (() => {
     let count = 0
     let relatedCount = 0
 
-    for (const brand of brands.slice(0, 2)) {
+    for (const brand of brands) {
       basePrint('-------------------------------')
 
-      const shopFile = path.resolve(stores_perfix, `${brand}.json`)
+      const shopFile = path.resolve(pre_params_shops_perfix, `${brand}.json`)
       const shopData: ShopItem[] = JSON.parse(fs.readFileSync(shopFile, 'utf-8'))
 
       const processData = shopData.filter(item => item.shopInfo.shopName.includes(brand))
@@ -109,7 +115,7 @@ const Task = (() => {
       count += shopData.length
       relatedCount += processData.length
 
-      basePrint(`${brand} ${total--}`)
+      basePrint(`${total} ${brand} ${processData.length}`)
 
       for (const shop of processData) {
         const {
@@ -117,18 +123,35 @@ const Task = (() => {
           shopInfo: { shopName }
         } = shop
 
-        basePrint(`${brand} ${shopId} ${shopName}`)
+        const data_goods_record = path.resolve(`${data_goods_prefix}_record.json`)
+
+        createFile(data_goods_record, [])
+
+        const record = new Set(getRecord(data_goods_record))
+
+        if (record.has(shopId)) continue
+
+        const goodsFile = path.resolve(data_goods_prefix, `${brand}_${shopId}.json`)
 
         try {
-          const data = await page.evaluate(grabGoods, { shopId })
-        } catch (error) {}
+          const { total, data } = await page.evaluate(grabGoods, { shopId, shopName })
+
+          basePrint(`${shopId} ${shopName} ${total} ${data.length}`)
+
+          record.add(shopId)
+
+          // //img11.360buyimg.com/cms/
+          createFile(goodsFile, data)
+          createFile(data_goods_record, [...record], true)
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
 
     basePrint('-------------------------------')
 
-    basePrint(`${count} ${relatedCount}`)
-    basePrint('finished')
+    basePrint(`finished ${count} ${relatedCount}`)
   }
 
   const init = async () => {
@@ -145,7 +168,7 @@ const Task = (() => {
 
     await page.goto(url)
 
-    await shops_crawler(page)
+    // await shops_crawler(page)
     await goods_crawler(page)
 
     await browser.close()

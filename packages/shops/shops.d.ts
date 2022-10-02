@@ -4,9 +4,12 @@ type Params = {
 
 type ProcessParams = {
   brand: string
+  shopId: string
+  shopName: string
 }
 
-type Answer = {
+// -----------------------------------
+type ShopAnswer = {
   page_count?: number
   total?: number
   data?: ShopItem[]
@@ -58,4 +61,48 @@ type ShopItem = {
   }
   shopSecondCate: SecoundCatge[]
   userEvaluateScore: string
+}
+
+// -----------------------------------
+type GoodsAnswer = {
+  page_count?: number
+  total?: number
+  data?: GoodItem[]
+}
+
+type HeadInfo = {
+  Summary: {
+    Page: {
+      PageCount: number
+      PageIndex: number
+      PageSize: number
+    }
+    ResultCount: number
+  }
+}
+
+type GoodItem = {
+  Content: {
+    author: string
+    imageurl: string
+    warename: string
+    CustomAttrList: string
+  }
+  dredisprice: string
+  shop_id: string
+  vender_id: string
+  wareid: string
+}
+
+type SearchChm = {
+  Head: HeadInfo
+  Paragraph: GoodItem[]
+}
+
+type GoodsData = {
+  retcode: string
+  errmsg: string
+  data: {
+    searchm: SearchChm
+  }
 }

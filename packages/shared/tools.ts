@@ -56,6 +56,21 @@ const createFile = (file: string, data: any, reset = false) => {
 
 const normalizePath = (file_path: string) => file_path.split(path.sep).join('/')
 
+const urlParse = (url: string) => {
+  const { origin, pathname, searchParams } = new URL(decodeURIComponent(url))
+
+  const params = {}
+  for (const key of searchParams.keys()) {
+    params[key] = searchParams.get(key)
+  }
+
+  return {
+    origin,
+    pathname,
+    params
+  }
+}
+
 export {
   setZero,
   getTimeStr,
@@ -64,5 +79,6 @@ export {
   delaySync,
   createDir,
   createFile,
-  normalizePath
+  normalizePath,
+  urlParse
 }

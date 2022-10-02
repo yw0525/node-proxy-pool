@@ -4,4 +4,8 @@ dist/
 
 # data
 data/
-*_stores/
+*_shops/
+*_record.json
+
+# testing
+testing/
