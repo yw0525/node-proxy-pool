@@ -1,61 +1,4 @@
-type Params = {
-  [key in string]: any
-}
-
-type ProcessParams = {
-  brand: string
-}
-
-type Answer = {
-  page_count?: number
-  total?: number
-  data?: ShopItem[]
-}
-
-type VendarItem = {
-  vender_id: string
-}
-
-type VendarData = {
-  summary: {
-    page: {
-      page_count: number
-    }
-    shop_count: number
-  }
-  shops: VendarItem[]
-}
-
-type SecoundCatge = {
-  cateId: string
-  cateName: string
-}
-
-type ShopItem = {
-  banner: string
-  latestBanner: string
-  shopEnterHotCateId1: string
-  shopEnterHotCateId2: string
-  shopEnterHotCateId3: string
-  shopEnterHotCateName1: string
-  shopEnterHotCateName2: string
-  shopEnterHotCateName3: string
-  shopId: string
-  shopUrl: string
-  shopInfo: {
-    venderId: string
-    brief: string
-    isJxzy: string
-    isZy: string
-    shopName: string
-    goodsNum: string
-    shopFansNum: string
-  }
-  shopSecondCate: SecoundCatge[]
-  userEvaluateScore: string
-}
-
-export const getShops = async (params: ProcessParams) => {
+export const grabShops = async (params: ProcessParams) => {
   const getRandom = (start: number, end: number) =>
     Math.floor(Math.random() * (end - start + 1) + start)
 
@@ -85,7 +28,7 @@ export const getShops = async (params: ProcessParams) => {
 
   const { brand } = params
 
-  const getShops = async (ans: Answer, page: number) => {
+  const grabShops = async (ans: Answer, page: number) => {
     const { page_count } = ans
 
     if (page_count && page_count < page) return
@@ -137,12 +80,12 @@ export const getShops = async (params: ProcessParams) => {
       ans.data.push(...data)
     }
 
-    await getShops(ans, page + 1)
+    await grabShops(ans, page + 1)
 
     return ans
   }
 
-  return await getShops({}, 1)
+  return await grabShops({}, 1)
 }
 
-export const getData = () => {}
+export const grabGoods = () => {}
