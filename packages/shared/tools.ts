@@ -56,11 +56,22 @@ const createFile = (file: string, data: any, reset = false) => {
 
 const normalizePath = (file_path: string) => file_path.split(path.sep).join('/')
 
-const urlParse = (url: string) => {
+const cleanData = (data: string) => {
+  return data.replace(/\\/gim, '')
+}
+
+const urlParse = (url: string, fields?: string[]) => {
   const { origin, pathname, searchParams } = new URL(decodeURIComponent(url))
+
+  const set = new Set(fields)
 
   const params = {}
   for (const key of searchParams.keys()) {
+    if (set.has(key)) {
+      params[key] = cleanData(searchParams.get(key) as string)
+      continue
+    }
+
     params[key] = searchParams.get(key)
   }
 
@@ -80,5 +91,6 @@ export {
   createDir,
   createFile,
   normalizePath,
+  cleanData,
   urlParse
 }

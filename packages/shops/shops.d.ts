@@ -8,6 +8,22 @@ type ProcessParams = {
   shopName: string
 }
 
+type CommandParams = {
+  brands: string[]
+  paths: {
+    prefix: string
+    pre_params_prefix: string
+    pre_params_shops_perfix: string
+    pre_params_shops_record: string
+    data_prefix: string
+    data_goods_prefix: string
+  }
+  tools: {
+    getRecord: (file: string) => string[]
+    print: (perfix: string) => (str: string | number) => void
+  }
+}
+
 // -----------------------------------
 type ShopAnswer = {
   page_count?: number
