@@ -76,7 +76,7 @@ module.exports = async (params: CommandParams) => {
       count += shopData.length
       relatedCount += processData.length
 
-      basePrint(`${total} ${brand} ${processData.length}`)
+      basePrint(`${total--} ${brand} ${processData.length}`)
 
       for (const shop of processData) {
         const {
