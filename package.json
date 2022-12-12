@@ -1,8 +1,7 @@
 {
-  "private": "true",
-  "name": "crawler-tool",
+  "name": "node-proxy-pool",
   "version": "0.0.0",
-  "description": "crawler tools",
+  "description": "node proxy pool",
   "scripts": {
     "build": "tsc",
     "proxy": "ts-node packages/proxy/index.ts",
@@ -11,18 +10,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yw0525/crawler-tool.git"
+    "url": "git+https://github.com/yw0525/node-proxy-pool.git"
   },
   "keywords": [
-    "proxy",
-    "crawler"
+    "proxy"
   ],
   "author": "heora",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/yw0525/crawler-tool/issues"
+    "url": "https://github.com/yw0525/node-proxy-pool/issues"
   },
-  "homepage": "https://github.com/yw0525/crawler-tool#readme",
+  "homepage": "https://github.com/yw0525/node-proxy-pool#readme",
   "devDependencies": {
     "@types/minimist": "^1.2.2",
     "ts-node": "^10.9.1",
@@ -31,6 +29,7 @@
   "dependencies": {
     "csv": "^6.2.0",
     "minimist": "^1.2.6",
+    "puppeteer": "^19.4.0",
     "superagent": "^8.0.1"
   }
 }

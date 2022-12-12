@@ -1,3 +1,4 @@
 packages:
   - 'packages/proxy'
-  - 'packages/shops'
+  - 'packages/fetcher'
+  - 'packages/server'

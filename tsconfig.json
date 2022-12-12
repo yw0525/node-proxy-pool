@@ -11,7 +11,6 @@
     "removeComments": false,
     "suppressImplicitAnyIndexErrors": true
   },
-  "files": ["packages/shops/shops.d.ts"],
   "include": ["packages/**/*"],
   "exclude": ["node_modules"]
 }
